@@ -1,11 +1,25 @@
 <template>
-  <div>
-    <video ref="video" width="640" height="480" autoplay></video>
-    <canvas ref="canvas" width="640" height="480"></canvas>
+  <div style="position: relative">
+    <video
+      ref="video"
+      width="640"
+      height="480"
+      autoplay
+      style="position: absolute; top: 0; left: 0"
+    ></video>
+    <canvas
+      ref="canvas"
+      width="640"
+      height="480"
+      style="position: absolute; top: 0; left: 0"
+    ></canvas>
   </div>
 </template>
 
 <script>
+// tracking ライブラリを import
+import * as tracking from "tracking";
+
 export default {
   mounted() {
     this.initCamera();
@@ -18,28 +32,28 @@ export default {
           this.$refs.video.srcObject = stream;
           this.trackFaces();
         })
-        .catch((error) => console.error('Error accessing webcam:', error));
+        .catch((error) => console.error("Error accessing webcam:", error));
     },
     trackFaces() {
       const video = this.$refs.video;
       const canvas = this.$refs.canvas;
-      const context = canvas.getContext('2d');
+      const context = canvas.getContext("2d");
 
       tracking.Camera.init({
         video: video,
         onFrame: () => {
           context.clearRect(0, 0, canvas.width, canvas.height);
-          tracking.track('#video', tracker);
+          tracking.track("#video", tracker);
         },
       });
 
-      const tracker = new tracking.ObjectTracker(['face', 'eye']);
+      const tracker = new tracking.ObjectTracker(["face", "eye"]);
       tracker.setInitialScale(4);
       tracker.setStepSize(2);
       tracker.setEdgesDensity(0.1);
 
-      tracker.on('track', (event) => {
-        context.strokeStyle = '#a64ceb';
+      tracker.on("track", (event) => {
+        context.strokeStyle = "#a64ceb";
         context.lineWidth = 2;
 
         event.data.forEach((rect) => {
@@ -49,7 +63,7 @@ export default {
 
           // 顔にくっつけるメガネの画像を描画
           const glassesImage = new Image();
-          glassesImage.src = 'https://svgsilh.com/svg_v2/311831.svg'; // メガネの画像へのパス
+          glassesImage.src = "/glasses.png"; // メガネの画像へのパス
           const eyeWidth = rect.width / 5; // 眼の幅を基準にメガネの幅を調整
           const eyeHeight = rect.height / 5; // 眼の高さを基準にメガネの高さを調整
           const eyeX = rect.x + rect.width / 2 - eyeWidth / 2;
